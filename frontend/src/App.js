@@ -63,11 +63,11 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-800 text-white">
+    <div className="min-h-screen bg-gray-900 text-gray-100">
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-primary-500 mb-2">Perplexcipe</h1>
-          <p className="text-dark-300">Transform any recipe into its essential components</p>
+          <h1 className="text-4xl font-bold text-orange-500 mb-2">Perplexcipe</h1>
+          <p className="text-gray-300">Transform any recipe into its essential components</p>
         </header>
 
         <div className="max-w-2xl mx-auto">
@@ -79,12 +79,12 @@ function App() {
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Paste your recipe URL here..."
                 required
-                className="flex-1 px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-white placeholder-dark-400"
+                className="flex-1 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 text-gray-100 placeholder-gray-400"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition-colors disabled:opacity-50"
+                className="px-6 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg font-medium transition-colors disabled:opacity-50 text-white"
               >
                 {loading ? (
                   <ArrowPathIcon className="h-5 w-5 animate-spin" />
@@ -103,7 +103,7 @@ function App() {
                 height="15px"
                 labelSize="12px"
                 baseBgColor="#1f2937"
-                bgColor="#10b981"
+                bgColor="#f97316"
                 borderRadius="10px"
                 labelAlignment="center"
                 transitionDuration="0.3s"
@@ -120,9 +120,9 @@ function App() {
           )}
 
           {recipe && (
-            <div className="p-6 bg-dark-700 rounded-lg border border-dark-600">
+            <div className="p-6 bg-gray-800 rounded-lg border border-gray-700">
               <ReactMarkdown 
-                className="prose prose-invert max-w-none prose-headings:text-primary-500 prose-strong:text-primary-300"
+                className="prose prose-invert max-w-none prose-headings:text-orange-500 prose-strong:text-orange-300 prose-p:text-gray-300 prose-li:text-gray-300"
               >
                 {recipe}
               </ReactMarkdown>
