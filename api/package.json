@@ -1,0 +1,10 @@
+{
+  "name": "perplexcipe-api",
+  "version": "1.0.0",
+  "description": "API for Perplexcipe recipe parser",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^1.6.5",
+    "cheerio": "^1.0.0-rc.12"
+  }
+} 
