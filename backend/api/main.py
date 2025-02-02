@@ -27,7 +27,21 @@ app.debug = False
 @app.route('/')
 def home():
     logger.info("Home endpoint called")
-    return jsonify({"status": "healthy"})
+    return jsonify({"status": "healthy", "message": "API is running"})
+
+@app.route('/api')
+def api_root():
+    logger.info("API root endpoint called")
+    return jsonify({
+        "status": "healthy",
+        "message": "API is running",
+        "endpoints": [
+            "/api/debug",
+            "/api/recipe",
+            "/api/test",
+            "/api/test-perplexity"
+        ]
+    })
 
 @app.route('/api/test')
 def test_api():
@@ -342,6 +356,9 @@ def debug_config():
         logger.error(f"Debug Error: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
-# For Vercel deployment
+# For local development
 if __name__ == '__main__':
-    app.run() 
+    app.run(host='0.0.0.0', port=5000)
+
+# For Vercel serverless deployment
+app = app 
