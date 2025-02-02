@@ -34,7 +34,7 @@ A modern web application that distills recipes into their essential components u
 3. Set up environment variables:
    Create a `.env` file in the backend directory with:
    ```
-   PERPLEXITY_API_KEY=your_api_key_here
+   PERPLEXCIPE_PERPLEXITY_API_KEY=your_api_key_here
    ```
 
 4. Run the development servers:

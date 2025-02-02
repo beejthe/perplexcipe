@@ -29,7 +29,7 @@ async def read_root():
 @app.post("/api/recipe")
 async def process_recipe(recipe_url: RecipeUrl):
     try:
-        PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
+        PERPLEXITY_API_KEY = os.getenv("PERPLEXCIPE_PERPLEXITY_API_KEY")
         if not PERPLEXITY_API_KEY:
             raise HTTPException(status_code=500, detail="API key not configured")
 
