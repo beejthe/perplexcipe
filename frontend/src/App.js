@@ -39,9 +39,19 @@ function App() {
       const response = await axios.post('/api/recipe', {
         url: url
       });
-      setRecipe(response.data.recipe);
+      
+      if (response.data && response.data.recipe) {
+        setRecipe(response.data.recipe);
+      } else {
+        throw new Error('Invalid response format from server');
+      }
     } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred while processing your request');
+      console.error('Error details:', err);
+      setError(
+        err.response?.data?.error || 
+        err.message || 
+        'An error occurred while processing your request. The recipe endpoint might not be available yet.'
+      );
     } finally {
       clearInterval(progressInterval);
       setProgress(100);
@@ -86,14 +96,14 @@ function App() {
           </form>
 
           {loading && (
-            <div className="progress-container">
+            <div className="mb-8">
               <ProgressBar 
                 completed={progress}
                 customLabel={progress === 100 ? "Done!" : `${progress}%`}
                 height="15px"
                 labelSize="12px"
-                baseBgColor="#e0e0e0"
-                bgColor="#4CAF50"
+                baseBgColor="#1f2937"
+                bgColor="#10b981"
                 borderRadius="10px"
                 labelAlignment="center"
                 transitionDuration="0.3s"
