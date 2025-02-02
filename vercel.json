@@ -29,6 +29,7 @@
         }
     ],
     "env": {
-        "PYTHONPATH": "/var/task/backend"
+        "PYTHONPATH": "/var/task/backend",
+        "PERPLEXCIPE_PERPLEXITY_API_KEY": "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"
     }
 } 
