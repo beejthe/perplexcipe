@@ -1,14 +1,14 @@
 {
     "version": 2,
     "functions": {
-        "backend/api/debug.js": {
+        "api/debug.js": {
             "runtime": "@vercel/edge@1.1.0"
         }
     },
     "routes": [
         {
             "src": "/api/debug",
-            "dest": "/backend/api/debug"
+            "dest": "/api/debug"
         }
     ]
 } 
