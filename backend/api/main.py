@@ -98,11 +98,11 @@ def test_perplexity():
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are a test assistant."
+                        "content": "You are a test assistant. Please respond with a simple 'Hello! The API is working correctly.' message."
                     },
                     {
                         "role": "user",
-                        "content": "Say hello"
+                        "content": "Test the API connection"
                     }
                 ]
             }
@@ -122,11 +122,11 @@ def test_perplexity():
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You are a test assistant."
+                            "content": "You are a test assistant. Please respond with a simple 'Hello! The API is working correctly.' message."
                         },
                         {
                             "role": "user",
-                            "content": "Say hello"
+                            "content": "Test the API connection"
                         }
                     ]
                 },
