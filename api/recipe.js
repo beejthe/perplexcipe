@@ -2,8 +2,8 @@ const axios = require('axios');
 
 async function processRecipe(url) {
   try {
-    if (!process.env.PERPLEXITY_API_KEY) {
-      throw new Error('PERPLEXITY_API_KEY environment variable is not set');
+    if (!process.env.PERPLEXCIPE_PERPLEXITY_API_KEY) {
+      throw new Error('PERPLEXCIPE_PERPLEXITY_API_KEY environment variable is not set');
     }
 
     console.log('Making request to Perplexity API for URL:', url);
@@ -36,7 +36,7 @@ Format the output in markdown with clear sections. Be thorough but concise. Remo
 
     const response = await axios.post('https://api.perplexity.ai/chat/completions', apiRequest, {
       headers: {
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY.trim()}`,
+        'Authorization': `Bearer ${process.env.PERPLEXCIPE_PERPLEXITY_API_KEY.trim()}`,
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
