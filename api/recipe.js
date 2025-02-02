@@ -19,7 +19,7 @@ For the URL: ${url}
 Format the output in markdown with clear sections. Be thorough but concise. Remove any unnecessary text, ads, or personal stories. Just give me the essential recipe information.`;
 
     const apiRequest = {
-      model: 'sonar-pro-v2',
+      model: 'mistral-7b-instruct',
       messages: [
         {
           role: 'system',
@@ -29,7 +29,12 @@ Format the output in markdown with clear sections. Be thorough but concise. Remo
           role: 'user',
           content: prompt
         }
-      ]
+      ],
+      temperature: 0.1,
+      max_tokens: 1024,
+      presence_penalty: 0,
+      frequency_penalty: 0,
+      top_p: 0.9
     };
 
     console.log('API Request:', JSON.stringify(apiRequest, null, 2));
@@ -37,19 +42,22 @@ Format the output in markdown with clear sections. Be thorough but concise. Remo
     const response = await axios.post('https://api.perplexity.ai/chat/completions', apiRequest, {
       headers: {
         'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        'Accept': 'application/json',
         'Content-Type': 'application/json'
-      }
+      },
+      timeout: 30000 // 30 second timeout
     });
 
     console.log('API Response status:', response.status);
-    console.log('API Response headers:', response.headers);
     
     if (!response.data || !response.data.choices || !response.data.choices[0]) {
       console.error('Invalid API response format:', response.data);
       throw new Error('Invalid response format from Perplexity API');
     }
 
-    return response.data.choices[0].message.content;
+    const recipe = response.data.choices[0].message.content;
+    console.log('Successfully received recipe content');
+    return recipe;
   } catch (error) {
     console.error('Error processing recipe:', {
       message: error.message,
@@ -64,9 +72,11 @@ Format the output in markdown with clear sections. Be thorough but concise. Remo
       throw new Error('Rate limit exceeded. Please try again later.');
     } else if (error.response?.data?.error) {
       throw new Error(`API Error: ${error.response.data.error}`);
+    } else if (error.code === 'ECONNABORTED') {
+      throw new Error('Request timed out. Please try again.');
     }
     
-    throw error;
+    throw new Error(`Failed to process recipe: ${error.message}`);
   }
 }
 
