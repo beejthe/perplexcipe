@@ -1,11 +1,8 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from http.server import BaseHTTPRequestHandler
+import json
 import os
 
-app = FastAPI()
-
-@app.get("/api/debug")
-async def debug_config():
+def handler(event, context):
     try:
         api_key = os.getenv("PERPLEXCIPE_PERPLEXITY_API_KEY")
         env_vars = dict(os.environ)
@@ -20,10 +17,19 @@ async def debug_config():
             "env_file_exists": os.path.exists(".env")
         }
         
-        return response_data
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps(response_data)
+        }
         
     except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
-        ) 
+        return {
+            "statusCode": 500,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps({"error": str(e)})
+        } 

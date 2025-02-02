@@ -3,12 +3,7 @@
     "builds": [
         {
             "src": "backend/api/debug.py",
-            "use": "@vercel/python",
-            "config": {
-                "maxLambdaSize": "15mb",
-                "runtime": "python3.9",
-                "handler": "app"
-            }
+            "use": "@vercel/python"
         }
     ],
     "routes": [
