@@ -75,6 +75,46 @@ def test_api():
         logger.error(f"Error testing API: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/test-perplexity')
+def test_perplexity():
+    try:
+        PERPLEXITY_API_KEY = os.getenv("PERPLEXCIPE_PERPLEXITY_API_KEY")
+        logger.info(f"Testing with API key starting with: {PERPLEXITY_API_KEY[:10]}...")
+        
+        response = httpx.post(
+            "https://api.perplexity.ai/chat/completions",
+            headers={
+                "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "mistral-7b-instruct",  # Using a different model to test
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a test assistant."
+                    },
+                    {
+                        "role": "user",
+                        "content": "Say hello"
+                    }
+                ]
+            },
+            timeout=10.0
+        )
+        
+        logger.info(f"Test Response Status: {response.status_code}")
+        logger.info(f"Test Response: {response.text}")
+        
+        if response.status_code == 200:
+            return jsonify({"status": "success", "message": "API connection working"}), 200
+        else:
+            return jsonify({"status": "error", "message": response.text}), response.status_code
+            
+    except Exception as e:
+        logger.error(f"Test Error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/recipe', methods=['POST'])
 def process_recipe():
     try:
@@ -108,7 +148,7 @@ def process_recipe():
                 "https://api.perplexity.ai/chat/completions",
                 headers=headers,
                 json={
-                    "model": "sonar-pro",
+                    "model": "mistral-7b-instruct",  # Changed from sonar-pro to a simpler model
                     "messages": [
                         {
                             "role": "system",
