@@ -3,6 +3,19 @@ export const config = {
 };
 
 export default async function handler(request) {
+  // Handle preflight requests for CORS
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      }
+    });
+  }
+
+  // Only allow POST requests
   if (request.method !== 'POST') {
     return new Response(
       JSON.stringify({ error: 'Method not allowed' }),
@@ -10,8 +23,7 @@ export default async function handler(request) {
         status: 405,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST'
+          'Access-Control-Allow-Origin': '*'
         }
       }
     );
@@ -34,7 +46,7 @@ export default async function handler(request) {
       );
     }
 
-    // For now, just return a placeholder response
+    // For now, return a placeholder response
     return new Response(
       JSON.stringify({
         recipe: `# Recipe from ${url}\n\n` +
@@ -54,8 +66,12 @@ export default async function handler(request) {
       }
     );
   } catch (error) {
+    console.error('Error processing request:', error);
     return new Response(
-      JSON.stringify({ error: 'Failed to process recipe' }),
+      JSON.stringify({ 
+        error: 'Failed to process recipe',
+        details: error.message
+      }),
       {
         status: 500,
         headers: {

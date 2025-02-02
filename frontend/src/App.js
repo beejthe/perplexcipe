@@ -33,7 +33,6 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted with URL:', url);
     
     setLoading(true);
     setError('');
@@ -43,34 +42,29 @@ function App() {
     const progressInterval = simulateProgress();
 
     try {
-      console.log('Making API request to /api/recipe');
-      const response = await axios.post('/api/recipe', {
-        url: url
-      });
+      const response = await axios.post('/api/recipe', { url });
       
-      console.log('API response:', response.data);
-      
-      if (response.data && response.data.recipe) {
+      if (response.data && typeof response.data.recipe === 'string') {
         setRecipe(response.data.recipe);
       } else {
         throw new Error('Invalid response format from server');
       }
     } catch (err) {
-      console.error('Detailed error:', {
-        message: err.message,
-        response: err.response,
-        status: err.response?.status,
-        data: err.response?.data
-      });
-      
       let errorMessage = 'An error occurred while processing your request.';
       
-      if (err.response?.status === 404) {
-        errorMessage = 'The recipe endpoint is not available. Please try again later.';
-      } else if (err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      } else if (err.message) {
-        errorMessage = err.message;
+      if (err.response) {
+        // Server responded with an error
+        if (err.response.status === 404) {
+          errorMessage = 'The recipe endpoint is not available. Please try again later.';
+        } else if (err.response.data && typeof err.response.data.error === 'string') {
+          errorMessage = err.response.data.error;
+        }
+      } else if (err.request) {
+        // Request was made but no response received
+        errorMessage = 'Unable to reach the server. Please check your internet connection.';
+      } else {
+        // Something else went wrong
+        errorMessage = err.message || 'An unexpected error occurred.';
       }
       
       setError(errorMessage);
