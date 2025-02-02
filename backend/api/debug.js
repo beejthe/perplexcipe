@@ -1,4 +1,8 @@
-module.exports = (req, res) => {
+export const config = {
+  runtime: 'edge'
+};
+
+export default async function handler(request) {
   try {
     const api_key = process.env.PERPLEXCIPE_PERPLEXITY_API_KEY;
     const env_vars = process.env;
@@ -17,8 +21,30 @@ module.exports = (req, res) => {
       env_file_exists: false // Not applicable in serverless environment
     };
     
-    res.status(200).json(response_data);
+    return new Response(
+      JSON.stringify(response_data),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        }
+      }
+    );
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    return new Response(
+      JSON.stringify({ error: e.message }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        }
+      }
+    );
   }
-}; 
+} 
