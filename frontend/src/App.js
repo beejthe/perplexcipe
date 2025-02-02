@@ -42,7 +42,11 @@ function App() {
     const progressInterval = simulateProgress();
 
     try {
-      const response = await axios.post('/api/recipe', { url });
+      const response = await axios.post('/api/recipe', { url }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       
       if (response.data && typeof response.data.recipe === 'string') {
         setRecipe(response.data.recipe);
