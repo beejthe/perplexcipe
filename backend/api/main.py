@@ -79,6 +79,10 @@ def test_api():
 def test_perplexity():
     try:
         PERPLEXITY_API_KEY = os.getenv("PERPLEXCIPE_PERPLEXITY_API_KEY")
+        if not PERPLEXITY_API_KEY:
+            logger.error("API key not found in environment variables")
+            return jsonify({"error": "API key not configured"}), 500
+            
         logger.info(f"Testing with API key starting with: {PERPLEXITY_API_KEY[:10]}...")
         
         # Log the full request we're about to make
@@ -105,39 +109,55 @@ def test_perplexity():
         }
         logger.info(f"Making request with data: {request_data}")
         
-        response = httpx.post(
-            "https://api.perplexity.ai/chat/completions",
-            headers={
-                "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
-                "Content-Type": "application/json",
-                "accept": "application/json"
-            },
-            json={
-                "model": "sonar-medium-chat",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "You are a test assistant."
-                    },
-                    {
-                        "role": "user",
-                        "content": "Say hello"
-                    }
-                ]
-            },
-            timeout=10.0
-        )
-        
-        logger.info(f"Test Response Status: {response.status_code}")
-        logger.info(f"Test Response Headers: {dict(response.headers)}")
-        logger.info(f"Test Response: {response.text}")
-        
-        if response.status_code == 200:
-            return jsonify({"status": "success", "message": "API connection working"}), 200
-        else:
-            error_response = response.json() if response.text else "No error details available"
-            logger.error(f"API Error: Status {response.status_code}, Response: {error_response}")
-            return jsonify({"status": "error", "message": error_response}), response.status_code
+        try:
+            response = httpx.post(
+                "https://api.perplexity.ai/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+                    "Content-Type": "application/json",
+                    "accept": "application/json"
+                },
+                json={
+                    "model": "sonar-medium-chat",
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": "You are a test assistant."
+                        },
+                        {
+                            "role": "user",
+                            "content": "Say hello"
+                        }
+                    ]
+                },
+                timeout=10.0
+            )
+            
+            logger.info(f"Test Response Status: {response.status_code}")
+            logger.info(f"Test Response Headers: {dict(response.headers)}")
+            logger.info(f"Test Response Text: {response.text}")
+            
+            try:
+                response_json = response.json()
+                logger.info(f"Test Response JSON: {response_json}")
+            except Exception as e:
+                logger.error(f"Failed to parse response as JSON: {str(e)}")
+                response_json = None
+            
+            if response.status_code == 200:
+                return jsonify({"status": "success", "message": "API connection working", "response": response_json}), 200
+            else:
+                error_response = response_json if response_json else response.text
+                logger.error(f"API Error: Status {response.status_code}, Response: {error_response}")
+                return jsonify({"status": "error", "message": error_response}), response.status_code
+                
+        except httpx.RequestError as e:
+            logger.error(f"HTTP Request Error: {str(e)}")
+            return jsonify({"error": f"Failed to connect to Perplexity API: {str(e)}"}), 500
+        except Exception as e:
+            logger.error(f"API Call Error: {str(e)}")
+            logger.exception("Full API call traceback:")
+            return jsonify({"error": f"Error calling Perplexity API: {str(e)}"}), 500
             
     except Exception as e:
         logger.error(f"Test Error: {str(e)}")
