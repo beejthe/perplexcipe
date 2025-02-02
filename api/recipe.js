@@ -1,59 +1,40 @@
 const axios = require('axios');
-const cheerio = require('cheerio');
 
-async function scrapeRecipe(url) {
+async function processRecipe(url) {
   try {
-    const response = await axios.get(url);
-    const $ = cheerio.load(response.data);
-    
-    // Extract ingredients
-    const ingredients = [];
-    $('.recipe-ingredients__list li').each((i, el) => {
-      const text = $(el).text().trim();
-      if (text) ingredients.push(text);
+    const prompt = `You are a recipe parser. Given a recipe URL, visit the page and extract the recipe in a clear, standardized format. Focus on:
+1. Title of the recipe
+2. List of ingredients with precise measurements
+3. Step-by-step cooking instructions
+4. Any special notes or tips
+
+For the URL: ${url}
+
+Format the output in markdown with clear sections. Be thorough but concise. Remove any unnecessary text, ads, or personal stories. Just give me the essential recipe information.`;
+
+    const response = await axios.post('https://api.perplexity.ai/chat/completions', {
+      model: 'sonar-pro',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a specialized recipe parser that extracts and formats recipes in a clear, standardized way.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
     });
 
-    // Extract instructions
-    const instructions = [];
-    $('.recipe-directions__list li').each((i, el) => {
-      const text = $(el).text().trim();
-      if (text) instructions.push(text);
-    });
-
-    // If we couldn't find ingredients/instructions with specific classes,
-    // try some common selectors
-    if (ingredients.length === 0) {
-      $('ul li').each((i, el) => {
-        const text = $(el).text().trim();
-        if (text.match(/^[\d½¼¾⅓⅔⅛⅜⅝⅞]|cup|tablespoon|teaspoon|pound|ounce|oz|lb|gram|g|ml|piece|slice/i)) {
-          ingredients.push(text);
-        }
-      });
-    }
-
-    if (instructions.length === 0) {
-      $('ol li').each((i, el) => {
-        const text = $(el).text().trim();
-        if (text.length > 10) {  // Basic filter for instruction-like content
-          instructions.push(text);
-        }
-      });
-    }
-
-    // Get recipe title
-    const title = $('h1').first().text().trim() || 'Recipe';
-
-    // Format the response in markdown
-    const markdown = `# ${title}\n\n` +
-                    '## Ingredients\n' +
-                    ingredients.map(i => `- ${i}`).join('\n') + '\n\n' +
-                    '## Instructions\n' +
-                    instructions.map((i, idx) => `${idx + 1}. ${i}`).join('\n');
-
-    return markdown;
+    return response.data.choices[0].message.content;
   } catch (error) {
-    console.error('Error scraping recipe:', error);
-    throw new Error('Failed to scrape recipe from the provided URL');
+    console.error('Error processing recipe:', error);
+    throw new Error('Failed to process recipe from the provided URL');
   }
 }
 
@@ -91,8 +72,8 @@ module.exports = async (req, res) => {
       return;
     }
 
-    // Scrape and parse the recipe
-    const recipe = await scrapeRecipe(url);
+    // Process the recipe using Perplexity API
+    const recipe = await processRecipe(url);
     
     res.status(200).json({ recipe });
   } catch (error) {
