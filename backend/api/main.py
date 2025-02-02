@@ -87,6 +87,7 @@ def process_recipe():
 
         PERPLEXITY_API_KEY = os.getenv("PERPLEXCIPE_PERPLEXITY_API_KEY")
         logger.info(f"API Key exists: {bool(PERPLEXITY_API_KEY)}")
+        logger.info(f"API Key prefix: {PERPLEXITY_API_KEY[:7] if PERPLEXITY_API_KEY else 'None'}")
         
         if not PERPLEXITY_API_KEY:
             logger.error("API key not configured")
@@ -96,13 +97,16 @@ def process_recipe():
 
         # Call Perplexity API
         try:
+            headers = {
+                "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+                "Content-Type": "application/json",
+                "accept": "application/json"
+            }
+            logger.info(f"Request headers: {headers}")
+            
             response = httpx.post(
                 "https://api.perplexity.ai/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
-                    "Content-Type": "application/json",
-                    "accept": "application/json"
-                },
+                headers=headers,
                 json={
                     "model": "sonar-pro",
                     "messages": [
@@ -185,8 +189,7 @@ Important formatting rules:
             
             logger.info(f"API Response Status: {response.status_code}")
             logger.info(f"API Response Headers: {dict(response.headers)}")
-            logger.info(f"API Response Text: {response.text[:500]}...")  # Log first 500 chars
-
+            
             if response.status_code != 200:
                 error_response = response.json() if response.text else "No error details available"
                 logger.error(f"Perplexity API Error: Status {response.status_code}, Response: {error_response}")
@@ -195,15 +198,8 @@ Important formatting rules:
                     "details": error_response
                 }), response.status_code
 
-        except httpx.RequestError as e:
-            logger.error(f"HTTP Request Error: {str(e)}")
-            return jsonify({"error": f"Failed to connect to Perplexity API: {str(e)}"}), 500
-        except Exception as e:
-            logger.error(f"API Call Error: {str(e)}")
-            return jsonify({"error": f"Error calling Perplexity API: {str(e)}"}), 500
-
-        try:
             result = response.json()
+            logger.info("Successfully received API response")
             content = result["choices"][0]["message"]["content"]
             
             # Check if the response indicates no valid recipe was found
@@ -213,9 +209,13 @@ Important formatting rules:
             return jsonify({
                 "recipe": content
             })
+
+        except httpx.RequestError as e:
+            logger.error(f"HTTP Request Error: {str(e)}")
+            return jsonify({"error": f"Failed to connect to Perplexity API: {str(e)}"}), 500
         except Exception as e:
-            logger.error(f"Response Processing Error: {str(e)}")
-            return jsonify({"error": f"Error processing API response: {str(e)}"}), 500
+            logger.error(f"API Call Error: {str(e)}")
+            return jsonify({"error": f"Error calling Perplexity API: {str(e)}"}), 500
 
     except Exception as e:
         logger.error(f"General Error: {str(e)}")
