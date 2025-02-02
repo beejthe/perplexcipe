@@ -40,7 +40,7 @@ def test_api():
                 "accept": "application/json"
             },
             json={
-                "model": "mixtral-8x7b-instruct",
+                "model": "pplx-70b-chat",
                 "messages": [
                     {
                         "role": "system",
@@ -88,7 +88,7 @@ def test_perplexity():
                 "Content-Type": "application/json"
             },
             json={
-                "model": "mixtral-8x7b-instruct",
+                "model": "pplx-70b-chat",
                 "messages": [
                     {
                         "role": "system",
@@ -148,7 +148,7 @@ def process_recipe():
                 "https://api.perplexity.ai/chat/completions",
                 headers=headers,
                 json={
-                    "model": "mixtral-8x7b-instruct",
+                    "model": "pplx-70b-chat",
                     "messages": [
                         {
                             "role": "system",
