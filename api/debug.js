@@ -1,8 +1,9 @@
 export const config = {
-  runtime: 'edge'
+  runtime: 'edge',
+  regions: ['iad1']
 };
 
-export default async function handler(request) {
+export default function handler(request) {
   return new Response(
     JSON.stringify({ message: 'Debug endpoint is working' }),
     {
