@@ -2,14 +2,14 @@
     "version": 2,
     "builds": [
         {
-            "src": "backend/api/debug.py",
-            "use": "@vercel/python"
+            "src": "backend/api/debug.js",
+            "use": "@vercel/node"
         }
     ],
     "routes": [
         {
             "src": "/api/debug",
-            "dest": "backend/api/debug.py"
+            "dest": "backend/api/debug.js"
         }
     ],
     "env": {
