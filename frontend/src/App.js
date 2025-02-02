@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
@@ -11,6 +11,11 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [progress, setProgress] = useState(0);
+
+  // Debug logging for state changes
+  useEffect(() => {
+    console.log('State updated:', { url, recipe, loading, error, progress });
+  }, [url, recipe, loading, error, progress]);
 
   const simulateProgress = () => {
     setProgress(0);
@@ -28,6 +33,8 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submitted with URL:', url);
+    
     setLoading(true);
     setError('');
     setRecipe('');
@@ -36,17 +43,26 @@ function App() {
     const progressInterval = simulateProgress();
 
     try {
+      console.log('Making API request to /api/recipe');
       const response = await axios.post('/api/recipe', {
         url: url
       });
       
+      console.log('API response:', response.data);
+      
       if (response.data && response.data.recipe) {
         setRecipe(response.data.recipe);
       } else {
+        console.error('Invalid response format:', response.data);
         throw new Error('Invalid response format from server');
       }
     } catch (err) {
-      console.error('Error details:', err);
+      console.error('Detailed error:', {
+        message: err.message,
+        response: err.response,
+        stack: err.stack
+      });
+      
       setError(
         err.response?.data?.error || 
         err.message || 
@@ -115,7 +131,8 @@ function App() {
 
           {error && (
             <div className="mb-8 p-4 bg-red-900/50 border border-red-800 rounded-lg text-red-200">
-              {error}
+              <p className="font-medium mb-2">Error:</p>
+              <p>{error}</p>
             </div>
           )}
 
