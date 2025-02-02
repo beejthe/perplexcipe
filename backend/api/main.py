@@ -81,11 +81,36 @@ def test_perplexity():
         PERPLEXITY_API_KEY = os.getenv("PERPLEXCIPE_PERPLEXITY_API_KEY")
         logger.info(f"Testing with API key starting with: {PERPLEXITY_API_KEY[:10]}...")
         
+        # Log the full request we're about to make
+        request_data = {
+            "url": "https://api.perplexity.ai/chat/completions",
+            "headers": {
+                "Authorization": f"Bearer {PERPLEXITY_API_KEY[:10]}...",
+                "Content-Type": "application/json",
+                "accept": "application/json"
+            },
+            "json": {
+                "model": "pplx-70b-chat",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a test assistant."
+                    },
+                    {
+                        "role": "user",
+                        "content": "Say hello"
+                    }
+                ]
+            }
+        }
+        logger.info(f"Making request with data: {request_data}")
+        
         response = httpx.post(
             "https://api.perplexity.ai/chat/completions",
             headers={
                 "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "accept": "application/json"
             },
             json={
                 "model": "pplx-70b-chat",
@@ -104,15 +129,19 @@ def test_perplexity():
         )
         
         logger.info(f"Test Response Status: {response.status_code}")
+        logger.info(f"Test Response Headers: {dict(response.headers)}")
         logger.info(f"Test Response: {response.text}")
         
         if response.status_code == 200:
             return jsonify({"status": "success", "message": "API connection working"}), 200
         else:
-            return jsonify({"status": "error", "message": response.text}), response.status_code
+            error_response = response.json() if response.text else "No error details available"
+            logger.error(f"API Error: Status {response.status_code}, Response: {error_response}")
+            return jsonify({"status": "error", "message": error_response}), response.status_code
             
     except Exception as e:
         logger.error(f"Test Error: {str(e)}")
+        logger.exception("Full traceback:")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/recipe', methods=['POST'])
