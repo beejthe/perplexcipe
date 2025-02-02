@@ -361,4 +361,10 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 
 # For Vercel serverless deployment
-app = app 
+def handler(request, context):
+    with app.request_context(request):
+        try:
+            return app.full_dispatch_request()
+        except Exception as e:
+            logger.error(f"Handler Error: {str(e)}", exc_info=True)
+            return jsonify({"error": str(e)}), 500 
