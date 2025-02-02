@@ -53,21 +53,28 @@ function App() {
       if (response.data && response.data.recipe) {
         setRecipe(response.data.recipe);
       } else {
-        console.error('Invalid response format:', response.data);
         throw new Error('Invalid response format from server');
       }
     } catch (err) {
       console.error('Detailed error:', {
         message: err.message,
         response: err.response,
-        stack: err.stack
+        status: err.response?.status,
+        data: err.response?.data
       });
       
-      setError(
-        err.response?.data?.error || 
-        err.message || 
-        'An error occurred while processing your request. The recipe endpoint might not be available yet.'
-      );
+      let errorMessage = 'An error occurred while processing your request.';
+      
+      if (err.response?.status === 404) {
+        errorMessage = 'The recipe endpoint is not available. Please try again later.';
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+      setRecipe('');
     } finally {
       clearInterval(progressInterval);
       setProgress(100);
@@ -131,7 +138,6 @@ function App() {
 
           {error && (
             <div className="mb-8 p-4 bg-red-900/50 border border-red-800 rounded-lg text-red-200">
-              <p className="font-medium mb-2">Error:</p>
               <p>{error}</p>
             </div>
           )}
