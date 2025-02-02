@@ -2,7 +2,7 @@
     "version": 2,
     "functions": {
         "backend/api/debug.js": {
-            "runtime": "edge"
+            "runtime": "@vercel/edge@1.1.0"
         }
     },
     "routes": [
