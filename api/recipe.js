@@ -19,7 +19,7 @@ For the URL: ${url}
 Format the output in markdown with clear sections. Be thorough but concise. Remove any unnecessary text, ads, or personal stories. Just give me the essential recipe information.`;
 
     const apiRequest = {
-      model: 'mistral-7b-instruct',
+      model: 'pplx-7b-online',
       messages: [
         {
           role: 'system',
@@ -29,19 +29,14 @@ Format the output in markdown with clear sections. Be thorough but concise. Remo
           role: 'user',
           content: prompt
         }
-      ],
-      temperature: 0.1,
-      max_tokens: 1024,
-      presence_penalty: 0,
-      frequency_penalty: 0,
-      top_p: 0.9
+      ]
     };
 
     console.log('API Request:', JSON.stringify(apiRequest, null, 2));
 
     const response = await axios.post('https://api.perplexity.ai/chat/completions', apiRequest, {
       headers: {
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY.trim()}`,
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
@@ -67,7 +62,7 @@ Format the output in markdown with clear sections. Be thorough but concise. Remo
     });
     
     if (error.response?.status === 401) {
-      throw new Error('Invalid API key or authentication error');
+      throw new Error('Invalid API key or authentication error. Please check your Perplexity API key.');
     } else if (error.response?.status === 429) {
       throw new Error('Rate limit exceeded. Please try again later.');
     } else if (error.response?.data?.error) {
