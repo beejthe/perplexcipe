@@ -315,7 +315,7 @@ def debug_config():
     try:
         api_key = os.getenv("PERPLEXCIPE_PERPLEXITY_API_KEY")
         env_vars = dict(os.environ)
-        filtered_vars = {k: v for k, v in env_vars.items() if 'PERPLEXITY' in k or 'API' in k}
+        filtered_vars = {k: v[:10] + "..." for k, v in env_vars.items() if 'PERPLEXITY' in k or 'API' in k}
         
         return jsonify({
             "api_key_exists": bool(api_key),
@@ -326,6 +326,7 @@ def debug_config():
             "env_file_exists": os.path.exists(".env")
         })
     except Exception as e:
+        logger.error(f"Debug Error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 # For Vercel deployment
