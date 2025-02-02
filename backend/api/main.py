@@ -88,7 +88,7 @@ def test_perplexity():
                 "Content-Type": "application/json"
             },
             json={
-                "model": "mistral-7b-instruct",  # Using a different model to test
+                "model": "pplx-7b-chat",  # Changed to a supported model
                 "messages": [
                     {
                         "role": "system",
@@ -148,7 +148,7 @@ def process_recipe():
                 "https://api.perplexity.ai/chat/completions",
                 headers=headers,
                 json={
-                    "model": "mistral-7b-instruct",  # Changed from sonar-pro to a simpler model
+                    "model": "pplx-7b-chat",  # Changed from mistral-7b-instruct to a supported model
                     "messages": [
                         {
                             "role": "system",
