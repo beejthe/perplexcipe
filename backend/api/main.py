@@ -310,7 +310,7 @@ Important formatting rules:
         logger.error(f"General Error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/debug')
+@app.route('/debug')
 def debug_config():
     try:
         api_key = os.getenv("PERPLEXCIPE_PERPLEXITY_API_KEY")
