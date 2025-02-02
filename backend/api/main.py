@@ -4,13 +4,19 @@ import httpx
 import os
 from dotenv import load_dotenv
 import logging
+import sys
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stdout
+)
 logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
+logger.info("Environment variables loaded")
 
 app = Flask(__name__)
 CORS(app)
@@ -20,6 +26,7 @@ app.debug = False
 
 @app.route('/')
 def home():
+    logger.info("Home endpoint called")
     return jsonify({"status": "healthy"})
 
 @app.route('/api/test')
@@ -312,21 +319,27 @@ Important formatting rules:
 
 @app.route('/api/debug')
 def debug_config():
+    logger.info("Debug endpoint called")
     try:
         api_key = os.getenv("PERPLEXCIPE_PERPLEXITY_API_KEY")
+        logger.info(f"API key exists: {bool(api_key)}")
+        
         env_vars = dict(os.environ)
         filtered_vars = {k: v[:10] + "..." for k, v in env_vars.items() if 'PERPLEXITY' in k or 'API' in k}
+        logger.info(f"Found environment variables: {list(filtered_vars.keys())}")
         
-        return jsonify({
+        response_data = {
             "api_key_exists": bool(api_key),
             "api_key_length": len(api_key) if api_key else 0,
             "api_key_prefix": api_key[:7] + "..." if api_key else None,
             "relevant_env_vars": filtered_vars,
             "cwd": os.getcwd(),
             "env_file_exists": os.path.exists(".env")
-        })
+        }
+        logger.info(f"Returning debug response: {response_data}")
+        return jsonify(response_data)
     except Exception as e:
-        logger.error(f"Debug Error: {str(e)}")
+        logger.error(f"Debug Error: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 # For Vercel deployment
