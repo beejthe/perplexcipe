@@ -21,7 +21,7 @@ logger.info("Environment variables loaded")
 app = Flask(__name__)
 CORS(app)
 
-# For Vercel serverless deployment
+# For Replit deployment
 app.debug = False
 
 @app.route('/')
@@ -197,7 +197,6 @@ def process_recipe():
 
         PERPLEXITY_API_KEY = os.getenv("PERPLEXCIPE_PERPLEXITY_API_KEY")
         logger.info(f"API Key exists: {bool(PERPLEXITY_API_KEY)}")
-        logger.info(f"API Key prefix: {PERPLEXITY_API_KEY[:7] if PERPLEXITY_API_KEY else 'None'}")
         
         if not PERPLEXITY_API_KEY:
             logger.error("API key not configured")
@@ -212,7 +211,6 @@ def process_recipe():
                 "Content-Type": "application/json",
                 "accept": "application/json"
             }
-            logger.info(f"Request headers: {headers}")
             
             response = httpx.post(
                 "https://api.perplexity.ai/chat/completions",
@@ -270,23 +268,7 @@ For the [Second Component]:
 
 • [Concise, helpful tip starting with action verb]
 
-• [Concise, helpful tip starting with action verb]
-
-Important formatting rules:
-1. Format section headings ('Ingredients', 'Instructions', 'Key Tips') in bold using **text**
-2. Use consistent bullet points (•) for all ingredients and sub-steps
-3. Write measurements in full (e.g., 'tablespoon' not 'tbsp')
-4. Each ingredient MUST be on its own line with a blank line between ingredients
-5. Instruction numbers MUST be on the same line as their text (inline)
-6. Sub-steps should be indented with exactly three spaces before the bullet point
-7. Leave exactly one blank line before each major section heading
-8. Start each instruction and tip with an action verb
-9. Capitalize ingredient names and proper nouns
-10. Use consistent punctuation throughout
-11. Keep instructions clear and direct
-12. Format measurements consistently (e.g., '1 tablespoon' not 'one tablespoon')
-13. Use parallel structure in all lists and steps
-14. CRITICAL: Keep ingredients on separate lines with blank lines between them, but instruction numbers inline with text"""
+• [Concise, helpful tip starting with action verb]"""
                         },
                         {
                             "role": "user",
@@ -298,7 +280,6 @@ Important formatting rules:
             )
             
             logger.info(f"API Response Status: {response.status_code}")
-            logger.info(f"API Response Headers: {dict(response.headers)}")
             
             if response.status_code != 200:
                 error_response = response.json() if response.text else "No error details available"
@@ -328,7 +309,7 @@ Important formatting rules:
             return jsonify({"error": f"Error calling Perplexity API: {str(e)}"}), 500
 
     except Exception as e:
-        logger.error(f"General Error: {str(e)}")
+        logger.error(f"Request Error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/debug')
@@ -356,15 +337,8 @@ def debug_config():
         logger.error(f"Debug Error: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
-# For local development
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
-# For Vercel serverless deployment
-def handler(request, context):
-    with app.request_context(request):
-        try:
-            return app.full_dispatch_request()
-        except Exception as e:
-            logger.error(f"Handler Error: {str(e)}", exc_info=True)
-            return jsonify({"error": str(e)}), 500 
+    # Get port from environment variable or default to 5000
+    port = int(os.environ.get('PORT', 5000))
+    # Listen on all available interfaces for Replit
+    app.run(host='0.0.0.0', port=port) 
