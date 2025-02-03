@@ -3,33 +3,31 @@ import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import ProgressBar from "@ramonak/react-progress-bar";
+import config from './config';
 import './App.css';
 
 function App() {
   const [url, setUrl] = useState('');
   const [recipe, setRecipe] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // Debug logging for state changes
-  useEffect(() => {
-    console.log('State updated:', { url, recipe, loading, error, progress });
-  }, [url, recipe, loading, error, progress]);
-
   const simulateProgress = () => {
-    setProgress(0);
-    const interval = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress >= 90) {
-          clearInterval(interval);
-          return 90;
-        }
-        return prevProgress + 10;
+    return setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 10;
       });
     }, 500);
-    return interval;
   };
+
+  useEffect(() => {
+    // Reset progress when loading is complete
+    if (!loading) {
+      setTimeout(() => setProgress(0), 1000);
+    }
+  }, [loading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,7 +40,7 @@ function App() {
     const progressInterval = simulateProgress();
 
     try {
-      const response = await axios.post('/api/recipe', { url }, {
+      const response = await axios.post(`${config.apiUrl}/api/recipe`, { url }, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -118,35 +116,26 @@ function App() {
 
           {loading && (
             <div className="mb-8">
-              <ProgressBar 
+              <ProgressBar
                 completed={progress}
-                customLabel={progress === 100 ? "Done!" : `${progress}%`}
-                height="15px"
-                labelSize="12px"
-                baseBgColor="#1f2937"
+                customLabel=" "
+                height="4px"
                 bgColor="#f97316"
-                borderRadius="10px"
-                labelAlignment="center"
-                transitionDuration="0.3s"
-                animateOnRender
-                maxCompleted={100}
+                baseBgColor="#1f2937"
+                isLabelVisible={false}
               />
             </div>
           )}
 
           {error && (
-            <div className="mb-8 p-4 bg-red-900/50 border border-red-800 rounded-lg text-red-200">
-              <p>{error}</p>
+            <div className="p-4 mb-8 bg-red-900/50 border border-red-500 rounded-lg text-red-200">
+              {error}
             </div>
           )}
 
           {recipe && (
-            <div className="p-6 bg-gray-800 rounded-lg border border-gray-700">
-              <ReactMarkdown 
-                className="prose prose-invert max-w-none prose-headings:text-orange-500 prose-strong:text-orange-300 prose-p:text-gray-300 prose-li:text-gray-300"
-              >
-                {recipe}
-              </ReactMarkdown>
+            <div className="p-6 bg-gray-800 rounded-lg prose prose-invert max-w-none">
+              <ReactMarkdown>{recipe}</ReactMarkdown>
             </div>
           )}
         </div>
